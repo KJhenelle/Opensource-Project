@@ -1,15 +1,15 @@
-# Contribution [#]: [Issue Title]
+# Contribution [#1]: allow copy photo to clipboard
 
-**Contribution Number:** [1 / 2 / 3]  
-**Student:** [Your Name]  
-**Issue:** [GitHub issue link]  
-**Status:** [Phase I / Phase II / Phase III / Phase IV] [In Progress / Complete]
+**Contribution Number:** [1]  
+**Student:** Jhenelle Walters  
+**Issue:** [\[GitHub issue link\]](https://github.com/LibrePhotos/librephotos/issues/544)  
+**Status:** Phase I Complete
 
 ---
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs explaining why this issue interests you, how it matches your skills/learning goals, what you hope to learn]
+I chose this issue because it is an issue where I could work on my front end development skills and also challenge myself with something a bit more complicated in order to develop my understanding of how websites work and how different functions of  webpages work in order to become a better front and developer. I've worked on developing webpages before and I've also created an app before so it's in my skill set and it's also something I can improve within. 
 
 ---
 
@@ -17,7 +17,7 @@
 
 ### Problem Description
 
-[In your own words, what's broken or missing?]
+ When you copy a photo from the timeline in librephotos, it copies a .webp instead of the actual photo which limits the use of copy and paste function and doesn't allow it to be used more frequently or across multiple programs.
 
 ### Expected Behavior
 
@@ -109,7 +109,7 @@ Using UMPIRE framework (adapted):
 
 [What you built this week, challenges faced, decisions made]
 
-### Week [Y] Progress
+### Week [1] Progress
 
 [Continue documenting as you work]
 
