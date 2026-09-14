@@ -3,7 +3,7 @@
 **Contribution Number:** [1]  
 **Student:** Jhenelle Walters  
 **Issue:** [\[GitHub issue link\]](https://github.com/LibrePhotos/librephotos/issues/544)  
-**Status:** Phase I Complete
+**Status:** Phase II Complete
 
 ---
 
@@ -21,35 +21,44 @@ I chose this issue because it is an issue where I could work on my front end dev
 
 ### Expected Behavior
 
-[What should happen?]
+When a user selects and copies a photo from the timeline in LibrePhotos, the application should place the actual raw image data (or a widely compatible full-resolution image format) onto the system clipboard so it can be pasted universally across different desktop programs and messaging app
 
 ### Current Behavior
 
-[What actually happens?]
+When you try to copy an image from the timeline into another program like Google Docs, nothing is pasted and the clipboard registers no valid binary image content.
 
 ### Affected Components
 
-[Which parts of the codebase are involved?]
-
+Frontend timeline image rendering components, event handlers managing clipboard interactions, and data copy utilities in the LibrePhotos frontend codebase.
 ---
 
 ## Reproduction Process
 
 ### Environment Setup
 
-[Notes on setting up your local development environment - challenges you faced, how you solved them]
+Following the development installation I downloaded Docker Desktop
+navigated to the deploy/compose directory
+And created my .env file
+Then in terminal I ran "docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d"
+Opened the application using http://localhost:3000
 
 ### Steps to Reproduce
 
-1. [Step 1]
-2. [Step 2]
-3. [Observed result]
+1. Launch LibrePhotos in the local development environment (http://localhost:3000).
+2. Navigate to the timeline and right-click on an image tile.
+3. Select "Copy Image" (or press Ctrl+C / Cmd+C).
+4. Attempt to paste (Ctrl+V / Cmd+V) into Google Docs or another external document.
+5. Observe that no image appears in the document.
+
 
 ### Reproduction Evidence
 
-- **Commit showing reproduction:** [Link to commit in your fork]
-- **Screenshots/logs:** [If applicable]
-- **My findings:** [What you discovered during reproduction]
+- **Commit showing reproduction:** 
+ [N/A (reproduced directly on existing main branch via manual UI testing)](https://github.com/KJhenelle/librephotos)
+- **Screenshots/logs:** 
+![Terminal Clipboard Output](./TerminalCheck.png)
+- **My findings:**
+ When attempting to copy a photo directly from the timeline view, the system clipboard only captures plain text and HTML metadata rather than raw binary image data (e.g., «class PNGf» or standard raster formats). Because the binary image payload is absent or unhandled by standard operating system pasteboards, external applications like Google Docs cannot recognize or paste the photo.
 
 ---
 
@@ -57,30 +66,32 @@ I chose this issue because it is an issue where I could work on my front end dev
 
 ### Analysis
 
-[Your analysis of the root cause - what's causing the issue?]
+Browsers handle native right-click "Copy Image" by capturing the active DOM `
+element source. Because LibrePhotos serves optimized WebP assets and authenticated media paths, browsers often fail to serialize the binary data to standard pasteboards, or external applications fail to decode WebP clipboard buffers. Standardizing the clipboard payload requires an explicit application-level handler that fetches the image blob, converts it to standardimage/png`, and writes it via the modern Async Clipboard API.
 
 ### Proposed Solution
 
-[High-level description of your fix approach]
+Introduce an explicit "Copy to Clipboard" action (via the photo selection toolbar, tile overlay icon, or keyboard shortcut) that uses navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]) to write standardized PNG binary image data to the system clipboard.
 
 ### Implementation Plan
 
 Using UMPIRE framework (adapted):
 
-**Understand:** [Restate the problem]
+**Understand:** Photos copied from the timeline fail to paste into external applications because the clipboard receives metadata or an unsupported format instead of standard raster image binary data.
 
-**Match:** [What similar patterns/solutions exist in the codebase?]
+**Match:** Similar web clipboard implementations fetch the target image via fetch(), convert the response blob or canvas render into image/png, and write it using navigator.clipboard.write().
 
 **Plan:** [Step-by-step implementation plan]
-1. [Modify file X to do Y]
-2. [Add function Z]
-3. [Update tests]
+1. Locate the timeline photo card and selection action components in apps/frontend/src/.
+2. Implement a clipboard utility helper function that takes an image URL, fetches the binary blob, converts it if necessary to PNG format, and writes it to the clipboard using navigator.clipboard.write().
+3. Add a "Copy to Clipboard" action button or context menu entry accessible from the photo tile/selection bar.
+4. Add user feedback (e.g., a toast notification) confirming successful copy or displaying permission warnings.
 
-**Implement:** [Link to your branch/commits as you work]
+**Implement:** [\[Link to your branch/commits as you work\]](https://github.com/KJhenelle/librephotos)
 
-**Review:** [Self-review checklist - does it follow the project's contribution guidelines?]
+**Review:** Ensure compliance with LibrePhotos contribution guidelines, ESLint rules, and cross-browser clipboard permission considerations.
 
-**Evaluate:** [How will you verify it works?]
+**Evaluate:** Verify that copying a photo places «class PNGf» onto the clipboard and successfully pastes into Google Docs and external editors.
 
 ---
 
