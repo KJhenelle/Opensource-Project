@@ -3,7 +3,7 @@
 **Contribution Number:** [1]  
 **Student:** Jhenelle Walters  
 **Issue:** [\[GitHub issue link\]](https://github.com/LibrePhotos/librephotos/issues/544)  
-**Status:** Phase III Complete
+**Status:** Phase IV Complete
 
 ---
 
@@ -148,15 +148,39 @@ Decisions made: Transcoded images purely on the client side with an offscreen ca
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when submitted]
+**PR Link:** [GitHub PR URL when submitted]https://github.com/LibrePhotos/librephotos/pull/2072
 
-**PR Description:** [Draft or final PR description - much of the content above can be adapted]
+**PR Description:**
+fix(frontend): copy photo to clipboard as PNG from the lightbox (#544)
+
+**Summary**
+- Copying a photo from the lightbox previously had no dedicated action — pasting into external apps (e.g. Google Docs) silently failed because there was no way to get standard image bytes onto the OS clipboard.
+- Adds a "Copy to Clipboard" action (button + `c` shortcut) to the lightbox toolbar that fetches the displayed photo, normalizes it to PNG via canvas, and writes it with the Async Clipboard API (`navigator.clipboard.write([new ClipboardItem({'image/png': blob})])`).
+- Available on public/shared lightbox pages too, not just when signed in (unlike hide/favorite/public/delete), since it doesn't mutate anything.
+- Documents the new toolbar action and shortcut in the user guide.
+
+**Changes**
+- `apps/frontend/src/util/util.ts` — new `copyImageToClipboard()` helper
+- `apps/frontend/src/components/lightbox/LightboxControls.tsx` — new toolbar button
+- `apps/frontend/src/components/lightbox/ContentViewer.tsx` — new `c` keyboard shortcut
+- `apps/frontend/src/service/notifications/photos.ts` + `locales/en/translation.json` — success/error toasts
+- `apps/docs/docs/user-guide/viewing-photos.md` — user guide update
+- Tests: `apps/frontend/src/util/util.test.ts`, `apps/frontend/src/components/lightbox/LightboxControls.test.tsx`
+
+**Test plan**
+- [x] `yarn lint:error` clean
+- [x] Unit tests for `copyImageToClipboard` (success + image-load-failure paths)
+- [x] Component tests for the button and `c` shortcut (success toast, error toast, hidden for videos, shown on public pages)
+- [x] Manually verified in the dev stack: pasted a copied photo into an external app and confirmed standard PNG image data (not WebP)
+
+Closes #544
 
 **Maintainer Feedback:**
 - [Date]: [Summary of feedback received]
 - [Date]: [How you addressed it]
+## Note~ issue was closed before I could submit a pull request so I submitted a draft request within my own directory
 
-**Status:** [Awaiting review / Iterating / Approved / Merged]
+**Status:** [Closed]
 
 ---
 
@@ -164,20 +188,27 @@ Decisions made: Transcoded images purely on the client side with an offscreen ca
 
 ### Technical Skills Gained
 
-[What you learned technically]
+- Modern Browser Async Clipboard API: Learned how to implement navigator.clipboard.write and handle its strict security requirements by wrapping raw image data into native ClipboardItem instances.
+- Client-Side Image Transcoding: Mastered rendering source images into an offscreen HTML5 canvas element and converting them via canvas.toBlob to generate standard image/png payloads directly in the browser without server roundtrips.
+- React Lifecycle and Event Handling: Gained hands-on experience binding scoped keyboard event listeners for the C shortcut within useEffect hooks, ensuring proper event listener teardown on component unmount.
+- Full-Stack Virtualization Troubleshooting: Developed practical skills diagnosing Docker volume mount permissions, Apple Silicon filesystem bugs, and switching Docker Desktop virtualization engines from VirtioFS to gRPC FUSE.
 
 ### Challenges Overcome
 
-[What was hard and how you solved it]
+- Browser Clipboard MIME-Type Restrictions: Browsers throw a NotAllowedError when attempting to write non-PNG formats (like WebP) directly to the clipboard via ClipboardItem. Solved this by drawing the image to an offscreen canvas and exporting it as a standard PNG blob before invoking the clipboard API.
+- VirtioFS Container Crash Loops on macOS: The Django backend repeatedly encountered Errno 5 Input/output errors during database migrations due to VirtioFS file locks on host mounts. Resolved by adjusting folder permissions, removing corrupt database volumes, and switching Docker Desktop's file sharing engine to gRPC FUSE.
+- Frontend Dev Stack Caching: Changes made to the frontend were initially masked by cached Docker Compose images, while unseeded databases caused frontend API validation errors. Solved by running Vite directly on the host machine and using an isolated preview route to verify the lightbox component independently.
 
 ### What I'd Do Differently Next Time
 
-[Reflection on your process]
+- Isolate UI Component Testing Early: Build a standalone preview route or mock harness right away rather than troubleshooting a full multi-container backend stack just to verify frontend changes.
+- Check Virtualization and Host Permissions First: Inspect container filesystem drivers (VirtioFS vs. gRPC FUSE) and folder permissions as soon as low-level OS I/O errors appear rather than debugging application-level code.
+- Verify Browser API Constraints Upfront: Check web platform documentation and MIME-type restrictions before starting implementation to anticipate format limitations early in the planning stage.
 
 ---
 
 ## Resources Used
 
-- [Link to helpful documentation]
-- [Tutorial or Stack Overflow post that helped]
+- [\[Link to helpful documentation (Contribution docs)\]](https://github.com/LibrePhotos/librephotos/blob/886de200f30e2a3df41f5233609dff4459463023/apps/frontend/README.md)
+- [\[Tutorial or Stack Overflow post that helped (Development Installation Docs)\]](https://docs.librephotos.com/docs/development/dev-install/)
 - [GitHub issues or discussions that helped]
