@@ -3,7 +3,7 @@
 **Contribution Number:** [1]  
 **Student:** Jhenelle Walters  
 **Issue:** [\[GitHub issue link\]](https://github.com/LibrePhotos/librephotos/issues/544)  
-**Status:** Phase II Complete
+**Status:** Phase III Complete
 
 ---
 
@@ -99,18 +99,23 @@ Using UMPIRE framework (adapted):
 
 ### Unit Tests
 
-- [ ] Test case 1: [Description]
-- [ ] Test case 2: [Description]
-- [ ] Test case 3: [Description]
+- [x] Test case 1: 
+  - Verify copyImageToClipboard transcode pipeline converts source image to a PNG blob using an offscreen canvas and writes to navigator.clipboard.write([new ClipboardItem(...)])
+- [x] Test case 2: 
+  - Verify copyImageToClipboard gracefully catches clipboard permission rejections or insecure contexts and triggers an error notification toast
+- [x] Test case 3: 
+  - Verify the clipboard button in LightboxControls.tsx renders with correct tooltip label Copy to clipboard (C) and accessibility attributes
 
 ### Integration Tests
 
 - [ ] Integration scenario 1
+  - Verify clicking the clipboard toolbar button triggers image extraction, format conversion, and Mantine success toast notification
 - [ ] Integration scenario 2
+  - Verify pressing the C key while viewing an image in the lightbox invokes the copy handler without conflicting with other hotkeys (F fullscreen, arrow navigation, Esc close)
 
 ### Manual Testing
 
-[What you tested manually and results]
+Verified the light box had the copy button available and verified that clicking "c" copied the image to clipboard
 
 ---
 
@@ -122,13 +127,22 @@ Using UMPIRE framework (adapted):
 
 ### Week [1] Progress
 
-[Continue documenting as you work]
+What was built: Implemented the "Copy to Clipboard" feature for LibrePhotos image views (fixes Issue #544). Added a clipboard icon button and Copy to clipboard (C) tooltip to the lightbox toolbar, wired up a C keyboard shortcut, built an HTML5 canvas helper to transcode images into PNG blobs for navigator.clipboard.write(), and integrated Mantine toast notifications for feedback.
+Challenges faced: Resolved browser NotAllowedError exceptions by converting WebP/JPEG images to PNG before passing them to the Async Clipboard API. Overcame persistent OSError: [Errno 5] Docker crashes on Apple Silicon by repairing host directory permissions and switching Docker Desktop's file sharing implementation to gRPC FUSE.
+Decisions made: Transcoded images purely on the client side with an offscreen canvas to avoid backend API dependencies and extra network latency. Scoped the C key listener strictly to the lightbox modal lifecycle to prevent unwanted shortcut collisions across the rest of the application.
 
 ### Code Changes
 
-- **Files modified:** [List]
-- **Key commits:** [Links to important commits]
-- **Approach decisions:** [Why you chose certain approaches]
+- **Files modified:**
+  - apps/frontend/src/utils/clipboard.ts
+  - apps/frontend/src/components/lightbox/LightboxControls.tsx
+  - apps/frontend/src/components/lightbox/LightboxControls.test.tsx
+  - apps/frontend/src/locales/en/translation.json
+- **Key commits:** 
+  - https://github.com/KJhenelle/librephotos/commit/fc1c1a68f11fd430e7355b3f2d026a8867c56302
+  - https://github.com/KJhenelle/librephotos/commit/b07cd6ed87c06eb304e897fa6fe4869aecb03683
+- **Approach decisions:** Handled format conversion in an offscreen HTML5 
+
 
 ---
 
